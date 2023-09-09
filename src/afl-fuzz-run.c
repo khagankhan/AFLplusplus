@@ -33,7 +33,15 @@
 #endif
 
 #include "cmplog.h"
+static u8 in_calibration_phase = 0;
 
+void set_calibration_status(u8 status) {
+    in_calibration_phase = status;
+}
+
+u8 get_calibration_status(void) {
+    return in_calibration_phase;
+}
 #ifdef PROFILING
 u64 time_spent_working = 0;
 #endif
@@ -407,7 +415,7 @@ static void write_with_gap(afl_state_t *afl, u8 *mem, u32 len, u32 skip_at,
 
 u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
                   u32 handicap, u8 from_queue) {
-
+  set_calibration_status(1);
   u8 fault = 0, new_bits = 0, var_detected = 0, hnb = 0,
      first_run = (q->exec_cksum == 0);
   u64 start_us, stop_us, diff_us;
@@ -627,7 +635,7 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
   }
 
 abort_calibration:
-
+  set_calibration_status(0); 
   if (new_bits == 2 && !q->has_new_cov) {
 
     q->has_new_cov = 1;
@@ -655,7 +663,7 @@ abort_calibration:
   afl->stage_max = old_sm;
 
   if (!first_run) { show_stats(afl); }
-
+ set_calibration_status(0);
   return fault;
 
 }
@@ -1110,4 +1118,3 @@ common_fuzz_stuff(afl_state_t *afl, u8 *out_buf, u32 len) {
   return 0;
 
 }
-

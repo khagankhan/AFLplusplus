@@ -1124,7 +1124,8 @@ void classify_counts(afl_forkserver_t *);
 #endif
 
 /* Extras */
-
+void set_calibration_status(u8 status);
+u8 get_calibration_status(void);
 void load_extras_file(afl_state_t *, u8 *, u32 *, u32 *, u32);
 void load_extras(afl_state_t *, u8 *);
 void dedup_extras(afl_state_t *);
